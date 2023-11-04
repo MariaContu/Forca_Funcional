@@ -3,7 +3,7 @@ Jogo da Forca desenvolvido em Haskell para trabalho final da cadeira de programa
 
 ## Lista de Checks
 
-⬜ Leitura de arquivo .txt
+✅ Leitura de arquivo .txt
 
     Ler arquivo de texto para selecionar uma palavra entre as presentes no arquivo.
 
