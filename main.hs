@@ -42,7 +42,7 @@ jogar :: IO () --funcao principal do jogo
 jogar = do
     putStrLn "Vamos começar!"
     palavra <- escolhePalavra
-    putStrLn $ "Palavra escolhida: "++palavra --para testar se 
+    putStrLn $ "Palavra escolhida: "++palavra --para testar se sorteia uma palavra do arquivo 
 
 
 

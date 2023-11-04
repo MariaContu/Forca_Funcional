@@ -15,17 +15,20 @@ Jogo da Forca desenvolvido em Haskell para trabalho final da cadeira de programa
 
 ⬜ Sistema de Vidas
 
-    Agora, o jogador tem um total de 6 "vidas", ou seja, chutes. Se errar 6 letras, o jogador perde o jogo e é questionado se deseja jogar novamente ou finalizar o programa.
+    Agora, o jogador tem um total de 6 "vidas", ou seja, chutes. 
+    Se errar 6 letras, o jogador perde o jogo e é questionado se deseja jogar novamente ou finalizar o programa.
 
 
 ⬜ Bonequinho em ASCII
 
-    Representação das vidas do jogador como um boneco. A ordem de aparição deve ser: cabeça (1 erro), corpo (2 erros), perna esquerda (3 erros), perna direita (4 erros), braço esquerdo (5 erros) e braço direito (6 erros). Ao completar o boneco, o jogador perde o jogo.
+    Representação das vidas do jogador como um boneco. 
+    A ordem de aparição deve ser: cabeça (1 erro), corpo (2 erros), perna esquerda (3 erros), perna direita (4 erros), braço esquerdo (5 erros) e braço direito (6 erros). Ao completar o boneco, o jogador perde o jogo.
 
 
 ⬜ Sistema de sortear nova palavra (30%)
 
-    Faltando uma letra para completar a palavra, o sistema decide aleatoriamente se será sorteada uma nova palavra. Se acontecer, as letras que já estão na palavra anterior devem ser testadas e guardadas em um array de "letras usadas", que deve ser zerada ao trocar de palavra.
+    Faltando uma letra para completar a palavra, o sistema decide aleatoriamente se será sorteada uma nova palavra. 
+    Se acontecer, as letras que já estão na palavra anterior devem ser testadas e guardadas em um array de "letras usadas", que deve ser zerada ao trocar de palavra.
 
     Além disso, a quantidade de erros continua como anteriormente, visando deixar o jogo mais complicado.
 
