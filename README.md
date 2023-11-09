@@ -8,7 +8,7 @@ Jogo da Forca desenvolvido em Haskell para trabalho final da cadeira de programa
     Ler arquivo de texto para selecionar uma palavra entre as presentes no arquivo.
 
 
-⬜ Forca Funcional
+✅ Forca Funcional
 
     Sistema padrão de descobrir palavras da forca. Deve receber letra por letra até que preencha a palavra.
 

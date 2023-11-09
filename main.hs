@@ -1,5 +1,6 @@
 import System.IO
 import System.Random
+import Data.Char (isAlpha)
 
 main :: IO () --funcao inicial
 main = do
@@ -17,7 +18,6 @@ main = do
     else do
         putStrLn "Opção invalida =("
         main
-
 
 regras :: IO () --mostra regras do jogo
 regras = do
@@ -42,9 +42,13 @@ jogar :: IO () --funcao principal do jogo
 jogar = do
     putStrLn "Vamos começar!"
     palavra <- escolhePalavra
-    putStrLn $ "Palavra escolhida: "++palavra --para testar se sorteia uma palavra do arquivo 
-
-
+    --putStrLn $ "Palavra escolhida: "++palavra --para testar se sorteia uma palavra do arquivo 
+    let tamanhoPalavra = length palavra
+        palavraOculta = replicate tamanhoPalavra '_' --cria a palavra com ____
+    putStrLn palavraOculta
+    chute <- verificaChute []
+    let letrasUsadas = chute
+    rodada letrasUsadas palavraOculta palavra chute
 
 escolhePalavra :: IO String --funcao que sorteia a palavra
 escolhePalavra = do
@@ -63,3 +67,64 @@ readWords handle acc = do
         else do
             line <- hGetLine handle
             readWords handle (line : acc)
+
+rodada :: [Char] -> String -> String -> String -> IO ()
+rodada letrasUsadas palavraOculta palavraEscolhida chute = do
+    let novaPalavraOculta = atualizaPalavraOculta palavraOculta palavraEscolhida chute
+    if novaPalavraOculta == palavraEscolhida
+        then finalizaGame palavraEscolhida
+    else do
+        putStrLn "-----------------------------------"
+        putStrLn $ "Letras usadas: " ++ letrasUsadas 
+        putStrLn novaPalavraOculta
+        novoChute <- verificaChute letrasUsadas
+        let novasLetrasUsadas = novoChute ++ letrasUsadas
+        rodada novasLetrasUsadas novaPalavraOculta palavraEscolhida novoChute
+
+atualizaPalavraOculta :: String -> String -> String -> String
+atualizaPalavraOculta palavraOculta palavraEscolhida chute = 
+    [if c `elem` chute then c else o | (c, o) <- zip palavraEscolhida palavraOculta]
+
+
+finalizaGame :: String -> IO()
+finalizaGame palavraEscolhida = do
+    putStrLn "-----------------------------------"
+    putStrLn $ "Você acertou. A palavra era: "++ palavraEscolhida
+    putStrLn "Deseja voltar ao menu? Digite 1"
+    putStrLn "Deseja jogar novamente? Digite 2"
+    putStrLn "Deseja parar de jogar? Digite 3"
+    opcao <- getLine
+    if opcao == "1"
+        then main
+    else if opcao == "2"
+        then jogar
+    else if opcao == "3"
+        then putStrLn "Obrigada por jogar!"
+    else do
+        putStrLn "Opção invalida"
+        finalizaGame palavraEscolhida
+
+
+verificaChute :: String -> IO String
+verificaChute letrasUsadas = do
+    putStrLn "Chute uma letra, ou '1' para ativar o Poder Especial: "
+    chute <- getLine
+    if chute == "1"
+        then do
+            poderEspecial
+            verificaChute letrasUsadas
+            -- referente ao uso de um poder especial
+    else if null chute || not (isAlpha(head chute))
+        then do
+            putStrLn "Insira um valor válido."
+            verificaChute letrasUsadas
+    else if head chute `elem` letrasUsadas
+        then do
+            putStrLn "Essa letra ja foi enviada. Escolha outra."
+            verificaChute letrasUsadas
+    else
+        return chute
+
+poderEspecial :: IO()
+poderEspecial = do
+    putStrLn "Poder especial usado!"
