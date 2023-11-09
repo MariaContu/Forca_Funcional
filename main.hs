@@ -118,6 +118,11 @@ verificaChute letrasUsadas = do
         then do
             putStrLn "Insira um valor válido."
             verificaChute letrasUsadas
+    else if length chute /= 1
+        then do
+            putStrLn "Insira apenas uma letra!"
+            verificaChute letrasUsadas
+        
     else if head chute `elem` letrasUsadas
         then do
             putStrLn "Essa letra ja foi enviada. Escolha outra."
