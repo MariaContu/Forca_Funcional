@@ -45,11 +45,10 @@ jogar = do
     let tamanhoPalavra = length palavra
         palavraOculta = replicate tamanhoPalavra '_'
     putStrLn palavraOculta
-    chute <- verificaChute [] [] palavra -- Adicionando a palavra escolhida como parâmetro
+    chute <- verificaChute [] [] palavra
     let letrasUsadas = fst chute
         letrasIncorretas = snd chute
     rodada letrasUsadas letrasIncorretas palavraOculta palavra chute
-        
 
 escolhePalavra :: IO String
 escolhePalavra = do
@@ -70,24 +69,34 @@ readWords handle acc = do
 
 rodada :: [Char] -> [Char] -> String -> String -> (String, [Char]) -> IO ()
 rodada letrasUsadas letrasIncorretas palavraOculta palavraEscolhida chute = do
-    let novaPalavraOculta = atualizaPalavraOculta palavraOculta palavraEscolhida (fst chute)
-        novasLetrasIncorretas = snd chute
-    if novaPalavraOculta == palavraEscolhida
-        then finalizaGame palavraEscolhida
-    else do
-        putStrLn "-----------------------------------"
-        putStrLn $ "Letras usadas: " ++ letrasUsadas
-        putStrLn $ "Letras incorretas: " ++ reverse novasLetrasIncorretas
-        putStrLn novaPalavraOculta
-        novoChute <- verificaChute letrasUsadas novasLetrasIncorretas palavraEscolhida -- Adicionando a palavraEscolhida como parâmetro
-        let novasLetrasUsadas = fst novoChute
-            novasLetrasIncorretas = snd novoChute
-        rodada novasLetrasUsadas novasLetrasIncorretas novaPalavraOculta palavraEscolhida novoChute
-            
+    let novasLetrasIncorretas = snd chute
+        tentativasRestantes = 6 - length novasLetrasIncorretas
 
-atualizaPalavraOculta :: String -> String -> String -> String
-atualizaPalavraOculta palavraOculta palavraEscolhida chute =
-    [if c `elem` chute then c else o | (c, o) <- zip palavraEscolhida palavraOculta]
+    putStrLn "-----------------------------------"
+    putStrLn $ "Letras usadas: " ++ reverse letrasUsadas ++ "\n"
+    putStrLn $ "Letras incorretas: " ++ reverse novasLetrasIncorretas ++ "\n"
+    putStrLn $ desenhaBoneco tentativasRestantes
+    putStrLn $ "Palavra oculta: " ++ palavraOculta
+
+    if palavraOculta == palavraEscolhida
+        then finalizaGame palavraEscolhida
+        else do
+            novoChute <- verificaChute letrasUsadas novasLetrasIncorretas palavraEscolhida
+            let novasLetrasUsadas = fst novoChute
+                novasLetrasIncorretas = snd novoChute
+            rodada novasLetrasUsadas novasLetrasIncorretas palavraOculta palavraEscolhida novoChute
+
+desenhaBoneco :: Int -> String
+desenhaBoneco tentativasRestantes =
+    case tentativasRestantes of
+        6 -> "   ________\n   |    |\n   |\n   |\n   |\n___|___"
+        5 -> "   ________\n   |    |\n   |    O\n   |\n   |\n___|___"
+        4 -> "   ________\n   |    |\n   |    O\n   |    |\n   |\n___|___"
+        3 -> "   ________\n   |    |\n   |    O\n   |   /|\n   |\n___|___"
+        2 -> "   ________\n   |    |\n   |    O\n   |   /|\\\n   |\n___|___"
+        1 -> "   ________\n   |    |\n   |    O\n   |   /|\\\n   |   /\n___|___"
+        0 -> "   ________\n   |    |\n   |    O\n   |   /|\\\n   |   / \\\n___|___"
+        _ -> ""
 
 finalizaGame :: String -> IO ()
 finalizaGame palavraEscolhida = do
@@ -134,8 +143,8 @@ verificaChute letrasUsadas letrasIncorretas palavraEscolhida = do
     else do
         putStrLn "Letra correta!"
         return (head chute : letrasUsadas, letrasIncorretas)
-        
 
 poderEspecial :: IO ()
 poderEspecial = do
     putStrLn "Poder especial usado!"
+
