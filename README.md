@@ -13,13 +13,13 @@ Jogo da Forca desenvolvido em Haskell para trabalho final da cadeira de programa
     Sistema padrão de descobrir palavras da forca. Deve receber letra por letra até que preencha a palavra.
 
 
-⬜ Sistema de Vidas
+✅ Sistema de Vidas
 
     Agora, o jogador tem um total de 6 "vidas", ou seja, chutes. 
     Se errar 6 letras, o jogador perde o jogo e é questionado se deseja jogar novamente ou finalizar o programa.
 
 
-⬜ Bonequinho em ASCII
+✅ Bonequinho em ASCII
 
     Representação das vidas do jogador como um boneco. 
     A ordem de aparição deve ser: cabeça (1 erro), corpo (2 erros), perna esquerda (3 erros), perna direita (4 erros), braço esquerdo (5 erros) e braço direito (6 erros). Ao completar o boneco, o jogador perde o jogo.
