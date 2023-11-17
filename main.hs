@@ -15,6 +15,8 @@ main = do
         then regras
     else if opcao == "2"
         then jogar
+    else if opcao == "f"
+        then putStrLn "Respect was payed, thanks for playing"
     else do
         putStrLn "Opção inválida =("
         main
@@ -70,8 +72,7 @@ readWords handle acc = do
 rodada :: [Char] -> [Char] -> String -> String -> (String, [Char]) -> IO ()
 rodada letrasUsadas letrasIncorretas palavraOculta palavraEscolhida chute = do
     let novasLetrasIncorretas = snd chute
-        tentativasRestantes = 6 - length novasLetrasIncorretas
-        
+        tentativasRestantes = 6 - length novasLetrasIncorretas        
     let novaPalavraOculta = atualizaPalavraOculta palavraOculta palavraEscolhida (fst chute)
     if novaPalavraOculta == palavraEscolhida
         then finalizaGame 1 palavraEscolhida
@@ -79,7 +80,7 @@ rodada letrasUsadas letrasIncorretas palavraOculta palavraEscolhida chute = do
         then do
             putStrLn $ desenhaBoneco tentativasRestantes
             finalizaGame 0 palavraEscolhida
-    else do
+    else return()
 
     putStrLn "-----------------------------------"
     putStrLn $ "Letras usadas: " ++ reverse letrasUsadas ++ "\n"
@@ -130,7 +131,7 @@ finalizaGame resultado palavraEscolhida = do
     else
         do
         putStrLn "-----------------------------------"
-        putStrLn $ "Voce errou =( A palavra era: " ++ palavraEscolhida
+        putStrLn $ "Voce morreu \nPress F to pay respects \n =( A palavra era: " ++ palavraEscolhida
         putStrLn "Deseja voltar ao menu? Digite 1"
         putStrLn "Deseja jogar novamente? Digite 2"
         putStrLn "Deseja parar de jogar? Digite 3"
@@ -141,6 +142,8 @@ finalizaGame resultado palavraEscolhida = do
             then jogar
         else if opcao == "3"
             then putStrLn "Obrigada por jogar!"
+        else if opcao == "f"
+            then putStrLn "Respect was payed, thanks for playing!\n\n\n" delay(1000)
         else do
             putStrLn "Opção inválida"
             finalizaGame 0 palavraEscolhida
