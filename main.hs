@@ -80,17 +80,16 @@ rodada letrasUsadas letrasIncorretas palavraOculta palavraEscolhida chute = do
         then do
             putStrLn $ desenhaBoneco tentativasRestantes
             finalizaGame 0 palavraEscolhida
-    else return()
-
-    putStrLn "-----------------------------------"
-    putStrLn $ "Letras usadas: " ++ reverse letrasUsadas ++ "\n"
-    putStrLn $ "Letras incorretas: " ++ reverse novasLetrasIncorretas ++ "\n"
-    putStrLn $ desenhaBoneco tentativasRestantes
-    putStrLn $ "Palavra oculta: " ++ novaPalavraOculta
-    novoChute <- verificaChute letrasUsadas novasLetrasIncorretas palavraEscolhida
-    let novasLetrasUsadas = fst novoChute
-        novasLetrasIncorretas = snd novoChute
-    rodada novasLetrasUsadas novasLetrasIncorretas palavraOculta palavraEscolhida novoChute
+    else do
+        putStrLn "-----------------------------------"
+        putStrLn $ "Letras usadas: " ++ reverse letrasUsadas ++ "\n"
+        putStrLn $ "Letras incorretas: " ++ reverse novasLetrasIncorretas ++ "\n"
+        putStrLn $ desenhaBoneco tentativasRestantes
+        putStrLn $ "Palavra oculta: " ++ novaPalavraOculta
+        novoChute <- verificaChute letrasUsadas novasLetrasIncorretas palavraEscolhida
+        let novasLetrasUsadas = fst novoChute
+            novasLetrasIncorretas = snd novoChute
+        rodada novasLetrasUsadas novasLetrasIncorretas palavraOculta palavraEscolhida novoChute
 
 atualizaPalavraOculta :: String -> String -> String -> String
 atualizaPalavraOculta palavraOculta palavraEscolhida chute = 
@@ -143,7 +142,7 @@ finalizaGame resultado palavraEscolhida = do
         else if opcao == "3"
             then putStrLn "Obrigada por jogar!"
         else if opcao == "f"
-            then putStrLn "Respect was payed, thanks for playing!\n\n\n" delay(1000)
+            then putStrLn "Respect was payed, thanks for playing!\n"
         else do
             putStrLn "Opção inválida"
             finalizaGame 0 palavraEscolhida
