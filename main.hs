@@ -17,7 +17,7 @@ main = do
     else if opcao == "2"
         then jogar
     else if opcao == "f"
-        then putStrLn "Respect was payed, thanks for playing"
+        then putStrLn "Respect was paid, thanks for playing"
     else do
         putStrLn "Opção inválida =("
         main
@@ -65,23 +65,50 @@ readWords :: Handle -> [String] -> IO [String]
 readWords handle acc = do
     eof <- hIsEOF handle
     if eof
-        then return (reverse acc)
+        then do
+            hClose handle
+            return (reverse acc)
         else do
             line <- hGetLine handle
             readWords handle (line : acc)
 
+sortearNovaPalavra :: String -> IO String
+sortearNovaPalavra palavraAtual = do
+    chanceSorteio <- randomRIO (0, 1) :: IO Float
+    if chanceSorteio <= 0.3
+        then do
+            putStrLn "Sorteando uma nova palavra..."
+            handle <- openFile "palavras.txt" ReadMode
+            palavras <- readWords handle []
+            hClose handle
+            let palavrasRestantes = filter (/= palavraAtual) palavras
+            indice <- randomRIO (0, length palavrasRestantes - 1)
+            return (palavrasRestantes !! indice)
+        else return palavraAtual
+
 rodada :: [Char] -> [Char] -> String -> String -> (String, [Char]) -> IO ()
 rodada letrasUsadas letrasIncorretas palavraOculta palavraEscolhida chute = do
     let novasLetrasIncorretas = snd chute
-        tentativasRestantes = 6 - length novasLetrasIncorretas        
+    let tentativasRestantes = 6 - length novasLetrasIncorretas
     let novaPalavraOculta = atualizaPalavraOculta palavraOculta palavraEscolhida (fst chute)
-    if novaPalavraOculta == palavraEscolhida
-        then finalizaGame 1 palavraEscolhida
-    else if tentativasRestantes == 0
+    if '_' `elem` novaPalavraOculta && countUnderscores novaPalavraOculta == 1
         then do
-            putStrLn $ desenhaBoneco tentativasRestantes
-            finalizaGame 0 palavraEscolhida
-    else do
+            chanceSorteio <- randomRIO (0, 1) :: IO Float
+            if chanceSorteio <= 0.3
+                then do
+                    novaPalavra <- sortearNovaPalavra palavraEscolhida
+                    if novaPalavra == palavraEscolhida
+                        then finalizaGame 1 novaPalavra
+                        else do
+                            let novaPalavraOculta' = atualizaPalavraOculta (replicate (length novaPalavra) '_') novaPalavra (fst chute)
+                            rodada letrasUsadas letrasIncorretas novaPalavraOculta' novaPalavra chute
+                else continueRodada tentativasRestantes novasLetrasIncorretas novaPalavraOculta
+        else continueRodada tentativasRestantes novasLetrasIncorretas novaPalavraOculta
+    where
+    continueRodada 0 novasLetrasIncorretas novaPalavraOculta = do
+        putStrLn $ desenhaBoneco 0
+        finalizaGame 0 palavraEscolhida
+    continueRodada tentativasRestantes novasLetrasIncorretas novaPalavraOculta = do
         putStrLn "-----------------------------------"
         putStrLn $ "Letras usadas: " ++ reverse letrasUsadas ++ "\n"
         putStrLn $ "Letras incorretas: " ++ reverse novasLetrasIncorretas ++ "\n"
@@ -90,10 +117,13 @@ rodada letrasUsadas letrasIncorretas palavraOculta palavraEscolhida chute = do
         novoChute <- verificaChute letrasUsadas novasLetrasIncorretas palavraEscolhida
         let novasLetrasUsadas = fst novoChute
             novasLetrasIncorretas = snd novoChute
-        rodada novasLetrasUsadas novasLetrasIncorretas palavraOculta palavraEscolhida novoChute
-
+        rodada novasLetrasUsadas novasLetrasIncorretas novaPalavraOculta palavraEscolhida novoChute
+        
+countUnderscores :: String -> Int
+countUnderscores = length . filter (== '_')
+        
 atualizaPalavraOculta :: String -> String -> String -> String
-atualizaPalavraOculta palavraOculta palavraEscolhida chute = 
+atualizaPalavraOculta palavraOculta palavraEscolhida chute =
     [if c `elem` chute then c else o | (c, o) <- zip palavraEscolhida palavraOculta]
 
 desenhaBoneco :: Int -> String
@@ -110,44 +140,43 @@ desenhaBoneco tentativasRestantes =
 
 finalizaGame :: Int -> String -> IO ()
 finalizaGame resultado palavraEscolhida = do
-    
     if resultado == 1
         then do
+            putStrLn "-----------------------------------"
+            putStrLn $ "Você acertou. A palavra era: " ++ palavraEscolhida
+            putStrLn "Deseja voltar ao menu? Digite 1"
+            putStrLn "Deseja jogar novamente? Digite 2"
+            putStrLn "Deseja parar de jogar? Digite 3"
+            opcao <- getLine
+            if opcao == "1"
+                then main
+            else if opcao == "2"
+                then jogar
+            else if opcao == "3"
+                then putStrLn "Obrigado por jogar!"
+            else do
+                putStrLn "Opção inválida"
+                finalizaGame 1 palavraEscolhida
+    else do
         putStrLn "-----------------------------------"
-        putStrLn $ "Voce acertou. A palavra era: " ++ palavraEscolhida
+        putStrLn $ "Você morreu \nPressione 'F' para pagar seus respeitos \n =( A palavra era: " ++ palavraEscolhida
         putStrLn "Deseja voltar ao menu? Digite 1"
         putStrLn "Deseja jogar novamente? Digite 2"
         putStrLn "Deseja parar de jogar? Digite 3"
+        putStrLn "Deseja prestar respeitos? Digite 'F'"
         opcao <- getLine
         if opcao == "1"
             then main
         else if opcao == "2"
             then jogar
         else if opcao == "3"
-            then putStrLn "Obrigada por jogar!"
-        else do
-            putStrLn "Opção inválida"
-            finalizaGame 1 palavraEscolhida
-    else
-        do
-        putStrLn "-----------------------------------"
-        putStrLn $ "Voce morreu \nPress F to pay respects \n =( A palavra era: " ++ palavraEscolhida
-        putStrLn "Deseja voltar ao menu? Digite 1"
-        putStrLn "Deseja jogar novamente? Digite 2"
-        putStrLn "Deseja parar de jogar? Digite 3"
-        opcao <- getLine
-        if opcao == "1"
-            then main
-        else if opcao == "2"
-            then jogar
-        else if opcao == "3"
-            then putStrLn "Obrigada por jogar!"
-        else if opcao == "f"
-            then putStrLn "Respect was payed, thanks for playing!\n"
+            then putStrLn "Obrigado por jogar!"
+        else if opcao == "F" || opcao == "f"
+            then putStrLn "Seus respeitos foram prestados. \nA alma de seu boneco agradece! ;) \n Obrigado por jogar!\n"
         else do
             putStrLn "Opção inválida"
             finalizaGame 0 palavraEscolhida
-            
+
 verificaChute :: String -> [Char] -> String -> IO (String, [Char])
 verificaChute letrasUsadas letrasIncorretas palavraEscolhida = do
     putStrLn "Chute uma letra, ou '1' para ativar o Poder Especial: "
