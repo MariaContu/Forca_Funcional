@@ -1,6 +1,7 @@
 import System.IO
 import System.Random (randomRIO)
 import Data.Char (isAlpha)
+import Control.Monad (when)
 
 main :: IO ()
 main = do
@@ -146,35 +147,37 @@ finalizaGame resultado palavraEscolhida = do
         else do
             putStrLn "Opção inválida"
             finalizaGame 0 palavraEscolhida
-
+            
 verificaChute :: String -> [Char] -> String -> IO (String, [Char])
 verificaChute letrasUsadas letrasIncorretas palavraEscolhida = do
     putStrLn "Chute uma letra, ou '1' para ativar o Poder Especial: "
     chute <- getLine
     if chute == "1"
         then do
-            poderEspecial
-            verificaChute letrasUsadas letrasIncorretas palavraEscolhida
-    else if null chute || not (isAlpha (head chute))
-        then do
-            putStrLn "Insira um valor válido."
-            verificaChute letrasUsadas letrasIncorretas palavraEscolhida
-    else if length chute /= 1
-        then do
-            putStrLn "Insira apenas uma letra!"
-            verificaChute letrasUsadas letrasIncorretas palavraEscolhida
-    else if head chute `elem` letrasUsadas || head chute `elem` letrasIncorretas
-        then do
-            putStrLn "Essa letra já foi enviada. Escolha outra."
-            verificaChute letrasUsadas letrasIncorretas palavraEscolhida
-    else if head chute `notElem` palavraEscolhida
-        then do
-            putStrLn "Letra incorreta!"
-            return (letrasUsadas, head chute : letrasIncorretas)
-    else do
-        putStrLn "Letra correta!"
-        return (head chute : letrasUsadas, letrasIncorretas)
+            letrasIncorretas' <- poderEspecial letrasIncorretas
+            pure (letrasUsadas, letrasIncorretas')
+        else if null chute || not (isAlpha (head chute))
+            then do
+                putStrLn "Insira um valor válido."
+                verificaChute letrasUsadas letrasIncorretas palavraEscolhida
+            else if length chute /= 1
+                then do
+                    putStrLn "Insira apenas uma letra!"
+                    verificaChute letrasUsadas letrasIncorretas palavraEscolhida
+                else if head chute `elem` letrasUsadas || head chute `elem` letrasIncorretas
+                    then do
+                        putStrLn "Essa letra já foi enviada. Escolha outra."
+                        verificaChute letrasUsadas letrasIncorretas palavraEscolhida
+                    else if head chute `notElem` palavraEscolhida
+                        then do
+                            putStrLn "Letra incorreta!"
+                            pure (letrasUsadas, head chute : letrasIncorretas)
+                        else do
+                            putStrLn "Letra correta!"
+                            pure (head chute : letrasUsadas, letrasIncorretas)
 
-poderEspecial :: IO ()
-poderEspecial = do
-    putStrLn "Poder especial usado!"
+poderEspecial :: [Char] -> IO [Char]
+poderEspecial letrasIncorretas = do
+    let newIncorretas = if null letrasIncorretas then letrasIncorretas else init letrasIncorretas
+    when (newIncorretas /= letrasIncorretas) $ putStrLn "Poder especial usado! Um erro foi removido."
+    pure newIncorretas
