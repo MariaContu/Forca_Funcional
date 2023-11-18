@@ -15,8 +15,6 @@ main = do
         then regras
     else if opcao == "2"
         then jogar
-    else if opcao == "f"
-        then putStrLn "Respect was payed, thanks for playing"
     else do
         putStrLn "Opção inválida =("
         main
@@ -69,27 +67,44 @@ readWords handle acc = do
             line <- hGetLine handle
             readWords handle (line : acc)
 
+randomNumber :: StdGen -> (Int, StdGen)
+randomNumber gen = randomR (1, 100) gen
+
 rodada :: [Char] -> [Char] -> String -> String -> (String, [Char]) -> IO ()
 rodada letrasUsadas letrasIncorretas palavraOculta palavraEscolhida chute = do
     let novasLetrasIncorretas = snd chute
-        tentativasRestantes = 6 - length novasLetrasIncorretas        
+        tentativasRestantes = 6 - length novasLetrasIncorretas
+        
     let novaPalavraOculta = atualizaPalavraOculta palavraOculta palavraEscolhida (fst chute)
     if novaPalavraOculta == palavraEscolhida
         then finalizaGame 1 palavraEscolhida
+
+    else if tentativasRestantes == 1
+        then do
+        gen <- getStdGen
+        let num = randomNumber gen
+        if num % 2 == 0
+            then do
+                rodada letrasUsadas letrasIncorretas palavraOculta novaPalavra (fst chute)
+        else do
+            putStrLn $ desenhaBoneco tentativasRestantes
+            finalizaGame 0 palavraEscolhida
+    
     else if tentativasRestantes == 0
         then do
             putStrLn $ desenhaBoneco tentativasRestantes
             finalizaGame 0 palavraEscolhida
     else do
-        putStrLn "-----------------------------------"
-        putStrLn $ "Letras usadas: " ++ reverse letrasUsadas ++ "\n"
-        putStrLn $ "Letras incorretas: " ++ reverse novasLetrasIncorretas ++ "\n"
-        putStrLn $ desenhaBoneco tentativasRestantes
-        putStrLn $ "Palavra oculta: " ++ novaPalavraOculta
-        novoChute <- verificaChute letrasUsadas novasLetrasIncorretas palavraEscolhida
-        let novasLetrasUsadas = fst novoChute
-            novasLetrasIncorretas = snd novoChute
-        rodada novasLetrasUsadas novasLetrasIncorretas palavraOculta palavraEscolhida novoChute
+
+    putStrLn "-----------------------------------"
+    putStrLn $ "Letras usadas: " ++ reverse letrasUsadas ++ "\n"
+    putStrLn $ "Letras incorretas: " ++ reverse novasLetrasIncorretas ++ "\n"
+    putStrLn $ desenhaBoneco tentativasRestantes
+    putStrLn $ "Palavra oculta: " ++ novaPalavraOculta
+    novoChute <- verificaChute letrasUsadas novasLetrasIncorretas palavraEscolhida
+    let novasLetrasUsadas = fst novoChute
+        novasLetrasIncorretas = snd novoChute
+    rodada novasLetrasUsadas novasLetrasIncorretas palavraOculta palavraEscolhida novoChute
 
 atualizaPalavraOculta :: String -> String -> String -> String
 atualizaPalavraOculta palavraOculta palavraEscolhida chute = 
@@ -130,7 +145,7 @@ finalizaGame resultado palavraEscolhida = do
     else
         do
         putStrLn "-----------------------------------"
-        putStrLn $ "Voce morreu \nPress F to pay respects \n =( A palavra era: " ++ palavraEscolhida
+        putStrLn $ "Voce errou =( A palavra era: " ++ palavraEscolhida
         putStrLn "Deseja voltar ao menu? Digite 1"
         putStrLn "Deseja jogar novamente? Digite 2"
         putStrLn "Deseja parar de jogar? Digite 3"
@@ -141,8 +156,6 @@ finalizaGame resultado palavraEscolhida = do
             then jogar
         else if opcao == "3"
             then putStrLn "Obrigada por jogar!"
-        else if opcao == "f"
-            then putStrLn "Respect was payed, thanks for playing!\n"
         else do
             putStrLn "Opção inválida"
             finalizaGame 0 palavraEscolhida
